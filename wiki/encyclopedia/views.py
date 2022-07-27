@@ -1,6 +1,7 @@
 from django import forms
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.urls import is_valid_path
+from django.urls import reverse
 from . import util
 
 
@@ -32,11 +33,27 @@ def wikiPage(request, title):
 def newPage(request):
     if request.method == "POST":
         form = NewPageForm(request.POST)
-        if form.is_valid():
+
+        form.is_valid()
+
+        title = form.cleaned_data["title"]
+        content = form.cleaned_data["content"]
+
+        if form.is_valid() and util.get_entry(title) is None:
             util.save_entry(
-                form.cleaned_data["title"],
-                form.cleaned_data["content"]
+                title,
+                content
             )
+            return HttpResponseRedirect(
+                reverse("wikiPage", args=[title])
+            )
+        else:
+            if util.get_entry(title) is not None:
+                form.add_error("title", "this title already exists")
+
+            return render(request, "encyclopedia/new-page.html", {
+                "form": form
+            })
 
     return render(request, "encyclopedia/new-page.html", {
         "form": NewPageForm()
