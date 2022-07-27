@@ -11,6 +11,14 @@ class NewPageForm(forms.Form):
 
 
 def index(request):
+    title = request.GET.get("title")
+    pageMD = util.get_entry(title)
+
+    if pageMD is not None:
+        return HttpResponseRedirect(
+            reverse("wikiPage", args=[title])
+        )
+
     return render(request, "encyclopedia/index.html", {
         "entries": util.list_entries()
     })
