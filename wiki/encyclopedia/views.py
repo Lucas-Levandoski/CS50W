@@ -5,7 +5,7 @@ from django.urls import reverse
 from . import util
 
 
-class NewPageForm(forms.Form):
+class PageForm(forms.Form):
     title = forms.CharField(label="Title", required=True)
     content = forms.CharField(widget=forms.Textarea, required=True)
 
@@ -40,7 +40,7 @@ def wikiPage(request, title):
 
 def newPage(request):
     if request.method == "POST":
-        form = NewPageForm(request.POST)
+        form = PageForm(request.POST)
 
         form.is_valid()
 
@@ -64,9 +64,39 @@ def newPage(request):
             })
 
     return render(request, "encyclopedia/new-page.html", {
-        "form": NewPageForm()
+        "form": PageForm()
     })
 
 
 def editPage(request):
-    return render(request, "encyclopedia/new-page.html")
+    if request.method == "POST":
+        form = PageForm(request.POST)
+
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            content = form.cleaned_data["content"]
+
+            util.save_entry(title, content)
+
+            return HttpResponseRedirect(
+                reverse("wikiPage", args=[title])
+            )
+
+        return render(request, "encyclopedia/edit-page.html", {
+            "form": form
+        })
+
+    title = request.GET.get("title")
+    data = {
+        "title": title,
+        "content": util.get_entry(title)
+    }
+
+    form = PageForm(data)
+
+    if form.is_valid():
+        return render(request, "encyclopedia/edit-page.html", {
+            "form": form,
+        })
+
+    return render(request, "encyclopedia/index.html")
