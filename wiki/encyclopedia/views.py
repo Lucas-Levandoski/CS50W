@@ -48,6 +48,18 @@ def wikiPage(request, title):
     })
 
 
+def searchEntries(request):
+    q = request.GET.get('q')
+    entries = util.list_entries()
+
+    foundEntires = [e for e in entries if q.lower() in e.lower()]
+
+    return render(request, "encyclopedia/search.html", {
+        "query": q,
+        "entries": foundEntires
+    })
+
+
 def newPage(request):
     if request.method == "POST":
         form = PageForm(request.POST)
