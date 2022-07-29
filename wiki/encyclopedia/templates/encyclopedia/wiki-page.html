@@ -6,7 +6,7 @@
 
 {% block body %}
 
-    {{ entry }}
+    {{ entry | safe }}
 
     <form action="{% url 'editPage' %}">
         <input type="hidden" name="title" value="{{ title }}">

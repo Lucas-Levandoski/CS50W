@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 import random
+from markdown2 import markdown
 from . import util
 
 
@@ -43,7 +44,7 @@ def wikiPage(request, title):
 
     return render(request, "encyclopedia/wiki-page.html", {
         "title": title,
-        "entry": entry,
+        "entry": markdown(entry.replace('\n', '\n\n')),
     })
 
 
