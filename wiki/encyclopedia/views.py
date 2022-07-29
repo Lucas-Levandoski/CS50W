@@ -2,6 +2,7 @@ from django import forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+import random
 from . import util
 
 
@@ -10,8 +11,16 @@ class PageForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea, required=True)
 
 
+def randomPage(request):
+    title = random.choice(util.list_entries())
+    return HttpResponseRedirect(
+        reverse("wikiPage", args=[title])
+    )
+
+
 def index(request):
     title = request.GET.get("title")
+
     pageMD = util.get_entry(title)
 
     if pageMD is not None:
